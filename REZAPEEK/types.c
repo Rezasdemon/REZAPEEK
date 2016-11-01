@@ -1,0 +1,1 @@
+enum CMenu {main,search,viewmem,database,info};

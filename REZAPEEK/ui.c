@@ -42,6 +42,8 @@ void line();
 int _curline = 0;
 int curline();
 void updownmenuopt(SceCtrlData pad, SceCtrlData oldpad, int options);
+void controls_intleftright(int* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad);
+
 void populatemenu(struct menuoptions menuopt[] , int ioptions);
 
 void menu_main();
@@ -189,6 +191,25 @@ if ((pad.buttons & SCE_CTRL_UP) && (!(oldpad.buttons & SCE_CTRL_UP))){
 
 }
 
+void controls_intleftright(int* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad){
+	
+
+	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
+	{
+		if((uint)*i > (uint)min){
+			*i = *i - 1;
+		}
+	}
+	if ((pad.buttons & SCE_CTRL_RIGHT) && (!(oldpad.buttons & SCE_CTRL_RIGHT)))
+	{
+		if ((uint)*i<(uint)max){
+			*i = *i +1;			
+		}
+	}	
+
+}
+
+
 //dynamically display menu from struct based on current selection
 void populatemenu(struct menuoptions menuopt[], int ioptions)
 {
@@ -227,14 +248,21 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	menuopt[0].left = "cur MenuValue: %s";
 	itoa(val,opt1,10);
 	menuopt[0].right = opt1;
+	if(imenu_opt == 0){
+		controls_intleftright(&val,0,10,pad,oldpad);
+	}
 	
     //second menu option
-	menuopt[1].left = "Hex int To String: 0x%s";
-	char opt2 [10];
+	menuopt[1].left = "Hex int To String: %s";
+	char opt2 [17];
 	
-	//snprintf(opt2, 10, "%08d",ihextest);
-	itoa(ihextest , opt2,16);
+	snprintf(opt2, 17, "0x%08X",ihextest);
+	//itoa(ihextest , opt2,16);
 	menuopt[1].right = opt2;
+	if (imenu_opt == 1){
+		controls_intleftright(&ihextest, 0 , 0xffffffff, pad ,oldpad);	
+	}
+	
 	
 	//third menu option
 	char opt3[10];
@@ -247,6 +275,8 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	itoa(imenu_opt,opt4,10);
 	menuopt[3].left ="menuopt : %s";
 	menuopt[3].right= opt4;
+	
+	/*
 	
 	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
 	{
@@ -261,6 +291,7 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 			ihextest --;
 		}
 		break;
+		
 		}
 	}
 	if ((pad.buttons & SCE_CTRL_RIGHT) && (!(oldpad.buttons & SCE_CTRL_RIGHT)))
@@ -278,6 +309,8 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 		break;
 		}
 	}
+	*/
+	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
 	
@@ -352,4 +385,6 @@ void menu_info(SceCtrlData pad, SceCtrlData oldpad)
 	blit_stringf(5, curline(), "%s", "credits to : OneRice07 , Rinnegatamante");
 	
 }
+
+
 

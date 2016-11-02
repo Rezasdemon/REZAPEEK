@@ -14,6 +14,6 @@ enum types {
 int gettypesize(enum types t);
 char* gettypename(enum types t);
 int getstrlength(char* str , int size);
-void inttostring(int _Val, char* output);
-void hexinttostring(int i,int leading,char* output);
+void inttostring(uint _Val, char* output);
+void hexinttostring(uint i,int leading,char* output);
 #endif

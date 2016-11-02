@@ -5,7 +5,7 @@
 
 #include "math.h"
  /* reverse:  reverse string s in place */
- /*void reverse(char s[])
+ void reverse(char s[])
  {
      int i, j;
      char c;
@@ -16,6 +16,8 @@
          s[j] = c;
      }
  }
+ 
+ /*
  
  // itoa:  convert n to characters in s 
  void itoa(int n, char s[])
@@ -102,7 +104,7 @@ return -1;
 
 }
 
-void inttostring(int _Val, char* output )
+void inttostring(uint _Val, char* output )
     {  
 		memset(output,0,10);
         snprintf(output,10, "%d", _Val);
@@ -110,7 +112,7 @@ void inttostring(int _Val, char* output )
 		
 	}
 	
-void hexinttostring(int i,int leading,char* output){
+void hexinttostring(uint i,int leading,char* output){
 	switch(leading){
 		case 1:
 		snprintf(output, 11, "0x%01X",i);

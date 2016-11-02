@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "math.h"
  /* reverse:  reverse string s in place */
  /*void reverse(char s[])
  {
@@ -33,6 +34,56 @@
      reverse(s);
  }
 */
+/*
+enum types {
+	t_byte = 1,
+	t_short = 2,
+	t_int = 4,
+	t_float = 4
+};
+*/
+int gettypesize(enum types t){
+	switch(t)
+	{
+		case t_byte:
+		return 1;
+		break;
+		case t_short:
+		return 2;
+		break;
+		case t_int:
+		return 4;
+		break;
+		case t_float:
+		return 4;
+		break;
+		
+	}
+	return 0;
+}
+
+char* gettypename(enum types t)
+{
+	
+	switch(t)
+	{
+		case t_byte:
+		return "Byte";
+		break;
+		case t_short:
+		return "Short";
+		break;
+		case t_int:
+		return "Int";
+		break;
+		case t_float:
+		return "Float";
+		break;
+		
+	}
+	return "";
+	
+}
 
 //if no end is found it returns -1 check against it to avoid errors.
 int getstrlength(char* str , int size){
@@ -50,27 +101,31 @@ for (i=0;i<size;i++)
 return -1;	
 
 }
-/*
-int strleadzero(char* str ,size,int typesize)
-{
-	// str = 3 bytes allocated  size is 10  
-	int len = getstrlength(str);
-	int i;
-	for (i=0;i<len ; i++)
-	{
-		
+
+void inttostring(int _Val, char* output )
+    {  
+		memset(output,0,10);
+        snprintf(output,10, "%d", _Val);
+		//itoa(val , buffer,10);
 		
 	}
 	
+void hexinttostring(int i,int leading,char* output){
+	switch(leading){
+		case 1:
+		snprintf(output, 11, "0x%01X",i);
+		break;
+		case 2:
+		snprintf(output, 11, "0x%02X",i);
+		break;
+		case 4:
+		snprintf(output, 11, "0x%04X",i);
+		break;
+		case 8:
+		snprintf(output, 11, "0x%08X",i);
+		break;
+		//itoa(val , buffer,16);
+		
+	}
 	
-}
-*/
-int inttostring(int _Val, char* output )
-    {  
-		memset(output,0,2*9);
-        snprintf(output,2*9, "%d", _Val);
-        return 0;
-}
-void hexinttostring(int i,char* output){
-	snprintf(output, 11, "0x%08X",i);
 }

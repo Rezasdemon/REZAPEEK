@@ -220,11 +220,11 @@ void controls_intleftright(int* i ,int min  ,int max , SceCtrlData pad, SceCtrlD
 }
 int hxplace = 0;
 int hxincrement = 1;
-void controls_hexleftright(int* i , SceCtrlData pad, SceCtrlData oldpad){
+void controls_hexleftright(int* i,int size , SceCtrlData pad, SceCtrlData oldpad){
 	
 	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
 	{
-		if(hxplace < 7 ){
+		if(hxplace < size*2 -1 ){
 			hxplace ++;
 		}
 		pressed = 1;
@@ -285,42 +285,36 @@ void populatemenu(struct menuoptions menuopt[], int ioptions)
 
 //##################### MENUS #####################//
 
-int val = 0;
-int ihextest = 0x80000000;
+int sval = 0;
+int iaddress = 0x84546E60;
 
-//menu code to hande menus 
-//enum menuid{main,search,viewmem,database,info};
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 {
-	int ioptions = 3;
+	int ioptions = 2;
 	
 	struct menuoptions menuopt[ioptions];
 	
-	//first menu option
-	char opt1[10];
-	menuopt[0].left = "cur MenuValue: %s";
-	itoa(val,opt1,10);
-	menuopt[0].right = opt1;
-	if(imenu_opt == 0){
-		controls_intleftright(&val,0,10,pad,oldpad);
+	
+	
+    //SET ADDRESS 
+	menuopt[0].left = "ADDRESS: %s";
+	char straddress[11];
+	hexinttostring(iaddress,gettypesize(t_int)*2,straddress);
+	menuopt[0].right = straddress;
+	if (imenu_opt == 0){
+		controls_hexleftright(&iaddress,gettypesize(t_int), pad ,oldpad);	
 	}
 	
-    //second menu option
-	menuopt[1].left = "Hex int To String: %s";
-	char opt2 [17];
 	
-	snprintf(opt2, 17, "0x%08X",ihextest);
-	//itoa(ihextest , opt2,16);
-	menuopt[1].right = opt2;
+	//SET VALUE
+	menuopt[1].left = "VALUE: %s";
+	char strsetto[11];
+	hexinttostring(sval,gettypesize(t_short)*2,strsetto);// 2bytes has 4 places in hex
+	menuopt[1].right = strsetto;
 	if (imenu_opt == 1){
-		controls_hexleftright(&ihextest, pad ,oldpad);	
+		controls_hexleftright(&sval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
 	}
 	
-	//third 
-	char opt3[10];
-	itoa(imenu_opt,opt3,10);
-	menuopt[2].left ="menuopt : %s";
-	menuopt[2].right= opt3;
 	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
@@ -343,10 +337,10 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 	
 	menuopt[1].left = "Hex Test2 : %s";
 	char strhextest2[11];
-	hexinttostring(hextest2,strhextest2);
+	hexinttostring(hextest2,gettypesize(t_int)*2,strhextest2);
 	menuopt[1].right = strhextest2;
 	if (imenu_opt == 1){
-		controls_hexleftright(&hextest2, pad ,oldpad);	
+		controls_hexleftright(&hextest2,gettypesize(t_int), pad ,oldpad);	
 	}
 	
 	updownmenuopt(pad ,oldpad,ioptions);
@@ -400,7 +394,7 @@ void menu_info(SceCtrlData pad, SceCtrlData oldpad)
 {
 	blit_stringf(5, curline(), "%s", "infoScreen");
 	blit_stringf(5, curline(), "%s", "Written by: Reza");
-	blit_stringf(5, curline(), "%s", "credits to : OneRice07 , Rinnegatamante, Personal friend Joshua");
+	blit_stringf(5, curline(), "%s", "credits to : OneRice07 , Rinnegatamante, Joshua");
 	
 }
 

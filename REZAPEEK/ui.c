@@ -292,7 +292,7 @@ int ihextest = 0x80000000;
 //enum menuid{main,search,viewmem,database,info};
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 {
-	int ioptions = 4;
+	int ioptions = 3;
 	
 	struct menuoptions menuopt[ioptions];
 	
@@ -316,18 +316,11 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 		controls_hexleftright(&ihextest, pad ,oldpad);	
 	}
 	
-	
-	//third menu option
+	//third 
 	char opt3[10];
-	itoa(getstrlength(opt2,10),opt3,10);
-	menuopt[2].left = "Buffer len =  %s";
-	menuopt[2].right = opt3;
-	
-	//fourth
-	char opt4[10];
-	itoa(imenu_opt,opt4,10);
-	menuopt[3].left ="menuopt : %s";
-	menuopt[3].right= opt4;
+	itoa(imenu_opt,opt3,10);
+	menuopt[2].left ="menuopt : %s";
+	menuopt[2].right= opt3;
 	
 	
 	updownmenuopt(pad ,oldpad,ioptions);

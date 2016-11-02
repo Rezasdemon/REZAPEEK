@@ -40,7 +40,7 @@ int hxplace = 0;
 int hxincrement = 1;
 
 
-void injectvalue(uint* offset,unsigned long val,int size );
+void injectvalue(uint* offset,char* val,int size );
 
 
 char* getMenuName(int id);
@@ -50,7 +50,7 @@ int pressed = 0;
 int _curline = 0;
 int curline();
 
-void controls_crosssetint(uint* offset, unsigned long val , int size,SceCtrlData pad , SceCtrlData oldpad);
+void controls_crosssetint(uint* offset, char* val , int size,SceCtrlData pad , SceCtrlData oldpad);
 void updownmenuopt(SceCtrlData pad, SceCtrlData oldpad, int options);
 void controls_intleftright(uint* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad);
 void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpad);
@@ -119,9 +119,9 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 }
 
 //##################### FUNCTIONS #####################//
-void injectvalue(uint* offset,unsigned long val,int size )
+void injectvalue(uint* offset,char* val,int size )
 {
-	memcpy(offset,&val,size);
+	memcpy(offset,val,size);
 }
 
 //enum menuid{main,search,viewmem,database,info};
@@ -147,8 +147,6 @@ char* getMenuName(int id){
 		default:
 		return (char*)"Undefined";
 		break;
-		
-		
 	}
 	return (char*)"Undefined";
 }
@@ -200,7 +198,13 @@ void updatemenusbuf(int id){
 	}
 }
 
-void controls_crosssetint(uint* offset, unsigned long val , int size,SceCtrlData pad,SceCtrlData oldpad){
+//tip to display on current option
+void control_tip(char* tip){
+	blit_stringf(960/2-50, 520, tip);
+	
+}
+// with hex input for address and int on cross pressed inject value to address
+void controls_crosssetint(uint* offset, char* val , int size,SceCtrlData pad,SceCtrlData oldpad){
 	if ((pad.buttons & SCE_CTRL_CROSS) && (!(oldpad.buttons & SCE_CTRL_CROSS))){
 				
 				injectvalue(offset,val,size);
@@ -209,7 +213,7 @@ void controls_crosssetint(uint* offset, unsigned long val , int size,SceCtrlData
 	
 }
 
-//handle up and down for menu
+//handle up and down for menu changes imenu_opt;
 void updownmenuopt(SceCtrlData pad , SceCtrlData oldpad, int ioptions){
 if ((pad.buttons & SCE_CTRL_UP) && (!(oldpad.buttons & SCE_CTRL_UP))){
 				if (imenu_opt > 0){
@@ -227,6 +231,7 @@ if ((pad.buttons & SCE_CTRL_UP) && (!(oldpad.buttons & SCE_CTRL_UP))){
 			}
 }
 
+// add controls for int input editing
 void controls_intleftright(uint* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad){
 	
 
@@ -247,6 +252,7 @@ void controls_intleftright(uint* i ,int min  ,int max , SceCtrlData pad, SceCtrl
 
 }
 
+// add controls for hex input editing 
 void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpad){
 	
 	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
@@ -284,7 +290,7 @@ void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpa
 	}
 	char buffer[10];
 	itoa(hxplace+1,buffer,10);
-	blit_stringf(828, 500, "Place: %s", buffer);
+	blit_stringf(830, 500, "Place: %s", buffer);
 }
 
 //dynamically display menu from struct based on current selection
@@ -311,7 +317,6 @@ void populatemenu(struct menuoptions menuopt[], int ioptions)
 
 uint sval = 0xffff;
 uint iaddress = 0x84546E60;
-
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 {
 	int ioptions = 2;
@@ -334,8 +339,9 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	menuopt[1].right = strsetto;
 	if (imenu_opt == 1){
 		controls_hexleftright(&sval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
-		
-		controls_crosssetint( (uint*)iaddress, sval , gettypesize(t_short),pad,oldpad);
+		sval = swap_uint16(sval);
+		controls_crosssetint( (uint*)iaddress, (char*)&sval , gettypesize(t_short),pad,oldpad);
+		sval = swap_uint16(sval);
 	}
 	
 	
@@ -348,6 +354,7 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	
 	
 }
+
 uint hextest2 = 0x000f0000;
 void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 {

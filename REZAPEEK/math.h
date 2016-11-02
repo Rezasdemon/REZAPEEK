@@ -16,6 +16,7 @@ char* gettypename(enum types t);
 int getstrlength(char* str , int size);
 void inttostring(uint _Val, char* output);
 void hexinttostring(uint i,int leading,char* output);
+void hexinttostringnoleading(uint i,int leading,char* output);
 
 
 //! Byte swap unsigned short

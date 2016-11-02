@@ -105,6 +105,25 @@ void hexinttostring(uint i,int leading,char* output){
 	}
 	
 }
+void hexinttostringnoleading(uint i,int leading,char* output){
+	switch(leading){
+		case 1:
+		snprintf(output, 3, "%01X",i);
+		break;
+		case 2:
+		snprintf(output, 11, "%02X",i);
+		break;
+		case 4:
+		snprintf(output, 11, "%04X",i);
+		break;
+		case 8:
+		snprintf(output, 11, "%08X",i);
+		break;
+		//itoa(val , buffer,16);
+		
+	}
+	
+}
 
 //! Byte swap unsigned short
 uint16_t swap_uint16( uint16_t val ) 

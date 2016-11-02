@@ -47,9 +47,11 @@ char* getMenuName(int id);
 
 void line();
 int pressed = 0;
+int redraw = 1;
 int _curline = 0;
 int curline();
 
+void control_tip(char* tip);
 void controls_crosssetint(uint* offset, char* val , int size,SceCtrlData pad , SceCtrlData oldpad);
 void updownmenuopt(SceCtrlData pad, SceCtrlData oldpad, int options);
 void controls_intleftright(uint* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad);
@@ -198,6 +200,8 @@ void updatemenusbuf(int id){
 	}
 }
 
+
+
 //tip to display on current option
 void control_tip(char* tip){
 	blit_stringf(960/2-50, 520, tip);
@@ -228,6 +232,7 @@ if ((pad.buttons & SCE_CTRL_UP) && (!(oldpad.buttons & SCE_CTRL_UP))){
 				}
 				pressed = 1;
 				hxplace = 0;
+				
 			}
 }
 
@@ -342,6 +347,7 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 		sval = swap_uint16(sval);
 		controls_crosssetint( (uint*)iaddress, (char*)&sval , gettypesize(t_short),pad,oldpad);
 		sval = swap_uint16(sval);
+		control_tip("X=Inject");
 	}
 	
 	
@@ -350,7 +356,6 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	
 	populatemenu(menuopt, ioptions);
 	curline();	
-	blit_stringf(5, curline(), "%s", "0xdead is injected as 0xadde ");
 	
 	
 }
@@ -381,20 +386,76 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 	
 }
 
+
+
+uint vmsval = 0xffff;
+uint vmiaddress = 0x84546E60;
 void menu_viewmem(SceCtrlData pad, SceCtrlData oldpad)
 {
-
-	int ioptions = 1;
-	//char _Buf[2 * 9];
+int ioptions = 2;
 	
 	struct menuoptions menuopt[ioptions];
 	
-	menuopt[0].left = "TODO: %s menu";
-	menuopt[0].right= getMenuName(imenu);
+    //SET ADDRESS 
+	menuopt[0].left = "ADDRESS: %s";
+	char straddress[11];
+	hexinttostring(vmiaddress,gettypesize(t_int)*2,straddress);
+	menuopt[0].right = straddress;
+	if (imenu_opt == 0){
+		controls_hexleftright(&vmiaddress,gettypesize(t_int), pad ,oldpad);
+	}
+	
+	//SET VALUE
+	menuopt[1].left = "VALUE: %s";
+	char strsetto[11];
+	hexinttostring(vmsval,gettypesize(t_short)*2,strsetto);// 2bytes has 4 places in hex
+	menuopt[1].right = strsetto;
+	if (imenu_opt == 1){
+		controls_hexleftright(&vmsval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
+		vmsval = swap_uint16(vmsval);
+		controls_crosssetint( (uint*)vmiaddress, (char*)&vmsval , gettypesize(t_short),pad,oldpad);
+		vmsval = swap_uint16(vmsval);
+		control_tip("X=Inject");
+	}
+	
+	
+	
+	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
 	
 	populatemenu(menuopt, ioptions);
+	
+	
+	
+	if(redraw == 1){
+		redraw = 0;
+		int x,y;
+		int height = 0;
+		
+		char memoutput[2];
+		for(y = 0 ; y < 16;y++)
+		{
+			height = curline();
+			for(x=0;x<16;x++){
+				uint* addressvalue = (uint*)(vmiaddress+(y*16)+x);
+				int value = 0;
+				memcpy(&value,addressvalue,1);
+				hexinttostringnoleading(value,gettypesize(t_byte)*2,memoutput);// 2bytes has 4 places in hex
+				blit_stringf(5+(x*50),height,"%s", memoutput);
+			
+			}
+			
+		}
+		
+	}
+	
+	if(pressed ==1 ){
+		redraw = 1;
+	}
+	
+	
+	
 	
 }
 

@@ -349,7 +349,7 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 	menuopt[0].right= getMenuName(imenu);
 	
 	menuopt[1].left = "Hex Test2 : %s";
-	char strhextest2[10];
+	char strhextest2[11];
 	hexinttostring(hextest2,strhextest2);
 	menuopt[1].right = strhextest2;
 	if (imenu_opt == 1){
@@ -407,7 +407,7 @@ void menu_info(SceCtrlData pad, SceCtrlData oldpad)
 {
 	blit_stringf(5, curline(), "%s", "infoScreen");
 	blit_stringf(5, curline(), "%s", "Written by: Reza");
-	blit_stringf(5, curline(), "%s", "credits to : OneRice07 , Rinnegatamante");
+	blit_stringf(5, curline(), "%s", "credits to : OneRice07 , Rinnegatamante, Personal friend Joshua");
 	
 }
 

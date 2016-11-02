@@ -72,5 +72,5 @@ int inttostring(int _Val, char* output )
         return 0;
 }
 void hexinttostring(int i,char* output){
-	snprintf(output, 10, "0x%08X",i);
+	snprintf(output, 11, "0x%08X",i);
 }

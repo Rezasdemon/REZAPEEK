@@ -85,7 +85,7 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 	}
 	_curline=5;
 	char* MenuName = getMenuName(imenu);
-	blit_stringf(5, 5, "REZAPEEK v.0.1 - Menu -> %s", MenuName);
+	blit_stringf(5, 5, "REZAPEEK v.0.2 - Menu -> %s", MenuName);
 	
 	blit_stringf(5, curline(), "%s", menusbuf);
 	line(curline());

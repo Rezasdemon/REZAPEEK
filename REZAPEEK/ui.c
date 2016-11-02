@@ -36,6 +36,10 @@ foo(&nA, nB);
 int clr_highlight = 0x0000ffff;
 int clr_normal = 0x00ffffff;
 
+int hxplace = 0;
+int hxincrement = 1;
+
+
 char* getMenuName(int id);
 
 void line();
@@ -188,15 +192,16 @@ if ((pad.buttons & SCE_CTRL_UP) && (!(oldpad.buttons & SCE_CTRL_UP))){
 				if (imenu_opt > 0){
 					imenu_opt--;
 				}
-				pressed = 1;
+				pressed = 1;	
+				hxplace = 0;
 			}
 			if ((pad.buttons & SCE_CTRL_DOWN) && (!(oldpad.buttons & SCE_CTRL_DOWN))){
 				if (imenu_opt < ioptions-1){
 					imenu_opt++;
 				}
 				pressed = 1;
+				hxplace = 0;
 			}
-
 }
 
 void controls_intleftright(int* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad){
@@ -218,8 +223,7 @@ void controls_intleftright(int* i ,int min  ,int max , SceCtrlData pad, SceCtrlD
 	}	
 
 }
-int hxplace = 0;
-int hxincrement = 1;
+
 void controls_hexleftright(int* i,int size , SceCtrlData pad, SceCtrlData oldpad){
 	
 	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
@@ -241,7 +245,6 @@ void controls_hexleftright(int* i,int size , SceCtrlData pad, SceCtrlData oldpad
 	if((pad.buttons & SCE_CTRL_SQUARE) && (!(oldpad.buttons & SCE_CTRL_SQUARE))){
 		hxincrement = 0x1 << hxplace * 4 ;
 		
-		
 		if((uint)(*i & (0xf << hxplace * 4))>>hxplace*4> 0x00) {
 			*i -= hxincrement;
 		}
@@ -250,8 +253,6 @@ void controls_hexleftright(int* i,int size , SceCtrlData pad, SceCtrlData oldpad
 	if((pad.buttons & SCE_CTRL_TRIANGLE) && (!(oldpad.buttons & SCE_CTRL_TRIANGLE))){
 		
 		hxincrement = 0x1 << hxplace * 4 ;
-		
-		
 		
 		if((uint)(*i & (0xf << hxplace * 4))>>hxplace*4< 0x0f) {
 			*i += hxincrement;
@@ -294,8 +295,6 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	
 	struct menuoptions menuopt[ioptions];
 	
-	
-	
     //SET ADDRESS 
 	menuopt[0].left = "ADDRESS: %s";
 	char straddress[11];
@@ -305,7 +304,6 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 		controls_hexleftright(&iaddress,gettypesize(t_int), pad ,oldpad);	
 	}
 	
-	
 	//SET VALUE
 	menuopt[1].left = "VALUE: %s";
 	char strsetto[11];
@@ -314,8 +312,6 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	if (imenu_opt == 1){
 		controls_hexleftright(&sval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
 	}
-	
-	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
 	

@@ -40,7 +40,7 @@ int hxplace = 0;
 int hxincrement = 1;
 
 
-void injectvalue(uint* offset,uint val,int size );
+void injectvalue(uint* offset,unsigned long val,int size );
 
 
 char* getMenuName(int id);
@@ -50,7 +50,7 @@ int pressed = 0;
 int _curline = 0;
 int curline();
 
-void controls_crosssetint(uint* offset, uint val , int size,SceCtrlData pad , SceCtrlData oldpad);
+void controls_crosssetint(uint* offset, unsigned long val , int size,SceCtrlData pad , SceCtrlData oldpad);
 void updownmenuopt(SceCtrlData pad, SceCtrlData oldpad, int options);
 void controls_intleftright(uint* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad);
 void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpad);
@@ -119,7 +119,7 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 }
 
 //##################### FUNCTIONS #####################//
-void injectvalue(uint* offset,uint val,int size )
+void injectvalue(uint* offset,unsigned long val,int size )
 {
 	memcpy(offset,&val,size);
 }
@@ -200,10 +200,10 @@ void updatemenusbuf(int id){
 	}
 }
 
-void controls_crosssetint(uint* offset, uint val , int size,SceCtrlData pad,SceCtrlData oldpad){
+void controls_crosssetint(uint* offset, unsigned long val , int size,SceCtrlData pad,SceCtrlData oldpad){
 	if ((pad.buttons & SCE_CTRL_CROSS) && (!(oldpad.buttons & SCE_CTRL_CROSS))){
 				
-				injectvalue((uint*)offset,val,size);
+				injectvalue(offset,val,size);
 				pressed = 2;	
 				}
 	
@@ -309,7 +309,7 @@ void populatemenu(struct menuoptions menuopt[], int ioptions)
 
 //##################### MENUS #####################//
 
-uint sval = 0;
+uint sval = 0xffff;
 uint iaddress = 0x84546E60;
 
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
@@ -334,7 +334,8 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	menuopt[1].right = strsetto;
 	if (imenu_opt == 1){
 		controls_hexleftright(&sval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
-		controls_crosssetint( (uint*)iaddress, sval , t_short,pad,oldpad);
+		
+		controls_crosssetint( (uint*)iaddress, sval , gettypesize(t_short),pad,oldpad);
 	}
 	
 	

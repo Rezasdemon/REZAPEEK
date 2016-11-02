@@ -39,6 +39,7 @@ int clr_normal = 0x00ffffff;
 char* getMenuName(int id);
 
 void line();
+int pressed = 0;
 int _curline = 0;
 int curline();
 void updownmenuopt(SceCtrlData pad, SceCtrlData oldpad, int options);
@@ -60,6 +61,11 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 	
 	sceDisplayWaitVblankStart();
 	blit_setup();
+	if(pressed == 1)
+	{
+		pressed = 0;
+		blit_clearscreen();
+	}
 	_curline=5;
 	char* MenuName = getMenuName(imenu);
 	blit_stringf(5, 5, "REZAPEEK v.0.1 - Menu -> %s", MenuName);
@@ -182,11 +188,13 @@ if ((pad.buttons & SCE_CTRL_UP) && (!(oldpad.buttons & SCE_CTRL_UP))){
 				if (imenu_opt > 0){
 					imenu_opt--;
 				}
+				pressed = 1;
 			}
 			if ((pad.buttons & SCE_CTRL_DOWN) && (!(oldpad.buttons & SCE_CTRL_DOWN))){
 				if (imenu_opt < ioptions-1){
 					imenu_opt++;
 				}
+				pressed = 1;
 			}
 
 }
@@ -199,16 +207,61 @@ void controls_intleftright(int* i ,int min  ,int max , SceCtrlData pad, SceCtrlD
 		if((uint)*i > (uint)min){
 			*i = *i - 1;
 		}
+		pressed = 1;
 	}
 	if ((pad.buttons & SCE_CTRL_RIGHT) && (!(oldpad.buttons & SCE_CTRL_RIGHT)))
 	{
 		if ((uint)*i<(uint)max){
 			*i = *i +1;			
 		}
+		pressed = 1;
 	}	
 
 }
-
+int hxplace = 0;
+int hxincrement = 1;
+void controls_hexleftright(int* i , SceCtrlData pad, SceCtrlData oldpad){
+	
+	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
+	{
+		if(hxplace < 7 ){
+			hxplace ++;
+		}
+		pressed = 1;
+		
+	}
+	if ((pad.buttons & SCE_CTRL_RIGHT) && (!(oldpad.buttons & SCE_CTRL_RIGHT)))
+	{
+		if(hxplace> 0){
+			hxplace--;
+		}
+		pressed = 1;
+		
+	}	
+	if((pad.buttons & SCE_CTRL_SQUARE) && (!(oldpad.buttons & SCE_CTRL_SQUARE))){
+		hxincrement = 0x1 << hxplace * 4 ;
+		
+		
+		if((uint)(*i & (0xf << hxplace * 4))>>hxplace*4> 0x00) {
+			*i -= hxincrement;
+		}
+		pressed = 1;
+	}
+	if((pad.buttons & SCE_CTRL_TRIANGLE) && (!(oldpad.buttons & SCE_CTRL_TRIANGLE))){
+		
+		hxincrement = 0x1 << hxplace * 4 ;
+		
+		
+		
+		if((uint)(*i & (0xf << hxplace * 4))>>hxplace*4< 0x0f) {
+			*i += hxincrement;
+		}
+		pressed = 1;			
+	}
+	char buffer[10];
+	itoa(hxplace+1,buffer,10);
+	blit_stringf(828, 500, "Place: %s", buffer);
+}
 
 //dynamically display menu from struct based on current selection
 void populatemenu(struct menuoptions menuopt[], int ioptions)
@@ -260,7 +313,7 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	//itoa(ihextest , opt2,16);
 	menuopt[1].right = opt2;
 	if (imenu_opt == 1){
-		controls_intleftright(&ihextest, 0 , 0xffffffff, pad ,oldpad);	
+		controls_hexleftright(&ihextest, pad ,oldpad);	
 	}
 	
 	
@@ -276,41 +329,6 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	menuopt[3].left ="menuopt : %s";
 	menuopt[3].right= opt4;
 	
-	/*
-	
-	if ((pad.buttons & SCE_CTRL_LEFT) && (!(oldpad.buttons & SCE_CTRL_LEFT)))
-	{
-		switch(imenu_opt){
-		case 0:
-		if (val > 0){
-		val--;
-		}
-		break;
-		case 1:
-		if(ihextest >0x00000000){
-			ihextest --;
-		}
-		break;
-		
-		}
-	}
-	if ((pad.buttons & SCE_CTRL_RIGHT) && (!(oldpad.buttons & SCE_CTRL_RIGHT)))
-	{
-		switch(imenu_opt){
-		case 0:
-		if (val < 5){
-		val++;
-		}
-		break;
-		case 1:
-		if(ihextest <0xFFFFFFFF){
-			ihextest ++;
-		}
-		break;
-		}
-	}
-	*/
-	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
 	
@@ -318,10 +336,10 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	
 	
 }
-
+int hextest2 = 0x000f0000;
 void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 {
-	int ioptions = 1;
+	int ioptions = 2;
 	//char _Buf[2 * 9];
 	
 	struct menuoptions menuopt[ioptions];
@@ -330,6 +348,13 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 	menuopt[0].left = "TODO: %s menu";
 	menuopt[0].right= getMenuName(imenu);
 	
+	menuopt[1].left = "Hex Test2 : %s";
+	char strhextest2[10];
+	hexinttostring(hextest2,strhextest2);
+	menuopt[1].right = strhextest2;
+	if (imenu_opt == 1){
+		controls_hexleftright(&hextest2, pad ,oldpad);	
+	}
 	
 	updownmenuopt(pad ,oldpad,ioptions);
 	

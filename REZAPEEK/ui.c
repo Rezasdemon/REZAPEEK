@@ -343,6 +343,8 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	updownmenuopt(pad ,oldpad,ioptions);
 	
 	populatemenu(menuopt, ioptions);
+	curline();	
+	blit_stringf(5, curline(), "%s", "0xdead is injected as 0xadde ");
 	
 	
 }

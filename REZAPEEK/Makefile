@@ -29,5 +29,5 @@ clean:
 send: $(TARGET).suprx
 	curl -T $(TARGET).suprx ftp://192.168.43.204:1337/ux0:/plugins/$(TARGET).suprx
 	curl -T $(TARGET).suprx ftp://192.168.43.204:1337/ux0:/tai/$(TARGET).suprx
-	curl -T config.txt ftp://192.168.43.204:1337/ux0:/data/tai/config.txt
+	curl -T config.txt ftp://192.168.43.204:1337/ux0:/tai/config.txt
 	@echo "Sent."

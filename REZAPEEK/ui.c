@@ -436,13 +436,17 @@ int ioptions = 2;
 		char memoutput[2];
 		for(y = 0 ; y < 16;y++)
 		{
-			height = curline();
+			height = curline(); 
+			int lineaddr = vmiaddress + ( 0x1 << 2 * 4);
+			char slineaddr[11];
+			hexinttostring(lineaddr,gettypesize(t_int)*2,slineaddr);
+			blit_stringf(5,height,"%s", slineaddr);
 			for(x=0;x<16;x++){
 				uint* addressvalue = (uint*)(vmiaddress+(y*16)+x);
 				int value = 0;
 				memcpy(&value,addressvalue,1);
 				hexinttostringnoleading(value,gettypesize(t_byte)*2,memoutput);// 2bytes has 4 places in hex
-				blit_stringf(5+(x*50),height,"%s", memoutput);
+				blit_stringf(175+(x*50),height,"%s", memoutput);
 			
 			}
 			

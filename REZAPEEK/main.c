@@ -125,3 +125,15 @@ int module_start(SceSize argc, const void *args) {
 	_start(argc,args);
 	return 0;
 }
+int module_stop(SceSize argc, const void *args) {
+  return SCE_KERNEL_STOP_SUCCESS;
+}
+
+/**
+ * @brief      Module Exit handler (unused)
+ *
+ *             This function is currently unused on retail units.
+ */
+void module_exit(void) {
+
+}

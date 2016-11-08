@@ -122,6 +122,7 @@ int _start(SceSize args,const void *argp) {
 
 // our own plugin entry
 int module_start(SceSize argc, const void *args) {
+	//sceKernelExitProcess(0);
 	_start(argc,args);
 	return 0;
 }

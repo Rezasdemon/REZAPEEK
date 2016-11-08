@@ -5,6 +5,7 @@
 # henkaku.skprx is hard-coded to load and is not listed here
 *main
 # main is a special titleid for SceShell
+
 ux0:app/MLCL00001/henkaku.suprx
 *NPXS10015
 # this is for modifying the version string

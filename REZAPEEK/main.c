@@ -1,7 +1,9 @@
 
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+
 #include <string.h>
 #include <psp2/ctrl.h>
 #include <psp2/power.h>
@@ -14,6 +16,9 @@
 #include <psp2/display.h>
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/processmgr.h>
+
+#include <taihen.h>
+
 #include "blit.h"
 #include "threads.h"
 #include "ui.h"
@@ -21,6 +26,8 @@
 int started = 0;
 int ram_mode = 0;
 SceCtrlData pad, oldpad;
+
+
 
 int main_thread(SceSize args, void *argp) {
 	
@@ -104,10 +111,30 @@ int main_thread(SceSize args, void *argp) {
 	free(menusbuf);
 	return 0;
 }
-int _start(SceSize args, void *argp) {
+
+
+int _start(SceSize args,const void *argp) {
 	SceUID thid = sceKernelCreateThread("REZAPEEK", main_thread, 0x40, 0x600000, 0, 0, NULL);
 	if (thid >= 0)
 		sceKernelStartThread(thid, 0, NULL);
 	return 0;
 }
 
+// our own plugin entry
+int module_start(SceSize argc, const void *args) {
+	//sceKernelExitProcess(0);
+	_start(argc,args);
+	return 0;
+}
+int module_stop(SceSize argc, const void *args) {
+  return SCE_KERNEL_STOP_SUCCESS;
+}
+
+/**
+ * @brief      Module Exit handler (unused)
+ *
+ *             This function is currently unused on retail units.
+ */
+void module_exit(void) {
+
+}

@@ -18,7 +18,7 @@ all: $(TARGET).suprx
 	vita-make-fself $< $@
 
 %.velf: %.elf
-	vita-elf-create $< $@ -e ./REZAPEEK.yml $(VITASDK)/share/taihen.json
+	vita-elf-create -e ./REZAPEEK.yml $< $@ $(VITASDK)/share/taihen.json
 
 $(TARGET).elf:  $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@

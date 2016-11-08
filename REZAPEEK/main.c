@@ -1,7 +1,9 @@
 
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+
 #include <string.h>
 #include <psp2/ctrl.h>
 #include <psp2/power.h>
@@ -14,6 +16,9 @@
 #include <psp2/display.h>
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/processmgr.h>
+
+#include <taihen.h>
+
 #include "blit.h"
 #include "threads.h"
 #include "ui.h"
@@ -21,6 +26,11 @@
 int started = 0;
 int ram_mode = 0;
 SceCtrlData pad, oldpad;
+
+// handle to our hook
+static tai_hook_ref_t app_start_ref;
+// our hook for app entry
+
 
 int main_thread(SceSize args, void *argp) {
 	
@@ -102,12 +112,21 @@ int main_thread(SceSize args, void *argp) {
 		oldpad = pad;
 	}
 	free(menusbuf);
-	return 0;
-}
+	}
 int _start(SceSize args, void *argp) {
 	SceUID thid = sceKernelCreateThread("REZAPEEK", main_thread, 0x40, 0x600000, 0, 0, NULL);
 	if (thid >= 0)
 		sceKernelStartThread(thid, 0, NULL);
-	return 0;
+	return TAI_CONTINUE(int, app_start_ref, args, argp);
+
 }
 
+// our own plugin entry
+int module_start(SceSize argc, const void *args) {
+  taiHookFunctionExport(&app_start_ref,  // Output a reference
+                        "module_start",       // Name of module being hooked
+                        TAI_ANY_LIBRARY, // If there's multiple libs exporting this
+                        0x935CD196,      // Special NID specifying `module_start`
+                        _start); // Name of the hook function
+  return SCE_KERNEL_START_SUCCESS;
+}

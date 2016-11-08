@@ -2,4 +2,4 @@
 # MODIFY ux0:data/tai/config.txt INSTEAD
 
 *PCSA00017
-ux0:/plugins/REZAPEEK.suprx
+ux0:tai/REZAPEEK.suprx

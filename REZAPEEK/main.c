@@ -27,9 +27,6 @@ int started = 0;
 int ram_mode = 0;
 SceCtrlData pad, oldpad;
 
-// handle to our hook
-static tai_hook_ref_t app_start_ref;
-// our hook for app entry
 
 
 int main_thread(SceSize args, void *argp) {
@@ -112,21 +109,19 @@ int main_thread(SceSize args, void *argp) {
 		oldpad = pad;
 	}
 	free(menusbuf);
-	}
-int _start(SceSize args, void *argp) {
+	return 0;
+}
+
+
+int _start(SceSize args,const void *argp) {
 	SceUID thid = sceKernelCreateThread("REZAPEEK", main_thread, 0x40, 0x600000, 0, 0, NULL);
 	if (thid >= 0)
 		sceKernelStartThread(thid, 0, NULL);
-	return TAI_CONTINUE(int, app_start_ref, args, argp);
-
+	return 0;
 }
 
 // our own plugin entry
 int module_start(SceSize argc, const void *args) {
-  taiHookFunctionExport(&app_start_ref,  // Output a reference
-                        "module_start",       // Name of module being hooked
-                        TAI_ANY_LIBRARY, // If there's multiple libs exporting this
-                        0x935CD196,      // Special NID specifying `module_start`
-                        _start); // Name of the hook function
-  return SCE_KERNEL_START_SUCCESS;
+	_start(argc,args);
+	return 0;
 }

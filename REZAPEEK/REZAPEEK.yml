@@ -1,10 +1,9 @@
 REZAPEEK:
-  attributes: 0
-  version:
-    major: 1
-    minor: 1
-  main:
-    start: module_start
-    stop: module_stop
-    exit: module_exit
-	
+attributes: 0
+main:
+ exit: module_exit
+ start: module_start
+ stop: module_stop
+version: 
+ major: 1
+ minor: 1

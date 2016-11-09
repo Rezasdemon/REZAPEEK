@@ -1,5 +1,5 @@
 TARGET  = REZAPEEK
-OBJS    = blit.o font.o threads.o math.o  ui.o main.o
+OBJS    = memory.o blit.o font.o threads.o math.o  ui.o main.o
 
 LIBS    = -ltaihen_stub -lSceAppUtil_stub -lSceAppMgr_stub -lSceCtrl_stub -lSceDisplay_stub -lSceFios2_stub -lScePower_stub -lSceLibc_stub
 	

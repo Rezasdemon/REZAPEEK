@@ -13,19 +13,35 @@ foo(&nA, nB);
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <psp2/ctrl.h>
+
 #include <psp2/power.h>
-#include <psp2/io/dirent.h>
-#include <psp2/io/fcntl.h>
 #include <psp2/io/stat.h>
+
 #include <psp2/appmgr.h>
-#include <psp2/net/net.h>
-#include <psp2/net/netctl.h>
+#include <psp2/apputil.h>
+#include <psp2/audioout.h>
+#include <psp2/ctrl.h>
 #include <psp2/display.h>
 #include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/processmgr.h>
+#include <psp2/kernel/sysmem.h>
+#include <psp2/io/dirent.h>
+#include <psp2/io/fcntl.h>
+#include <psp2/ime_dialog.h>
+#include <psp2/net/net.h>
+#include <psp2/net/netctl.h>
+#include <psp2/message_dialog.h>
 
+#include <psp2/motion.h>
+#include <psp2/pgf.h>
+#include <psp2/power.h>
+#include <psp2/rtc.h>
+#include <psp2/sysmodule.h>
+#include <psp2/system_param.h>
+#include <psp2/touch.h>
+#include <psp2/types.h>
 
+#include "memory.h"
 #include "blit.h"
 #include "math.h"
 #include "ui.h"
@@ -56,6 +72,8 @@ void controls_crosssetint(uint* offset, char* val , int size,SceCtrlData pad , S
 void updownmenuopt(SceCtrlData pad, SceCtrlData oldpad, int options);
 void controls_intleftright(uint* i ,int min  ,int max , SceCtrlData pad, SceCtrlData oldpad);
 void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpad);
+void controls_selfindmem(uint* count,struct memblock* blocks,SceCtrlData pad, SceCtrlData oldpad);
+
 
 void populatemenu(struct menuoptions menuopt[] , int ioptions);
 
@@ -198,6 +216,10 @@ void updatemenusbuf(int id){
 		else
 		{i++;}
 	}
+	if(id == VIEWMEM)
+	{
+		redraw = 1;
+	}
 }
 
 
@@ -306,10 +328,26 @@ void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpa
 	blit_stringf(830, 500, "Place: %s", buffer);
 }
 
+void controls_selfindmem(uint* count,struct memblock* blocks, SceCtrlData pad, SceCtrlData oldpad){
+	
+
+	if ((pad.buttons & SCE_CTRL_SELECT) && (!(oldpad.buttons & SCE_CTRL_SELECT)))
+	{
+			GetMemBlocks(count,blocks);
+		}
+	
+
+}
+
+
+
+
+
 //dynamically display menu from struct based on current selection
-void populatemenu(struct menuoptions menuopt[], int ioptions)
+void populatemenu(struct menuoptions menuopt[],int ioptions)
 {
 	int i;
+	
 	for(i=0;i<ioptions;i++){
 		if(i==imenu_opt){
 			
@@ -326,14 +364,15 @@ void populatemenu(struct menuoptions menuopt[], int ioptions)
 	}
 }
 
-
 //##################### MENUS #####################//
 
 uint sval = 0xffff;
-uint iaddress = 0x84546E60;
+uint iaddress = 0x816FB16C;
+uint memblocks = 0;
+struct memblock memaddrs[50];
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 {
-	int ioptions = 2;
+	int ioptions = 4;
 	
 	struct menuoptions menuopt[ioptions];
 	
@@ -360,6 +399,24 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 		sval = swap_uint16(sval);
 		control_tip("X=Inject");
 	}
+	
+	menuopt[2].left = "MEMBLOCKS = %s";
+	char buffer[10];
+	itoa(memblocks,buffer,10);
+	menuopt[2].right = buffer;
+	menuopt[2].useline = 0;
+	if(imenu_opt == 2)
+	{
+		controls_selfindmem(&memblocks,(struct memblock*)(&memaddrs),pad,oldpad);
+	}
+	
+	
+	menuopt[3].left = "MEMBLOCKS loc = %s";
+	menuopt[3].left = "ADDRESS: %s";
+	char lbuffer[11];
+	hexinttostring((int)&memaddrs,gettypesize(t_int)*2,lbuffer);
+	menuopt[3].right = lbuffer;
+	menuopt[3].useline = 0;
 	
 	
 	
@@ -402,7 +459,8 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 
 
 uint vmsval = 0xffff;
-uint vmiaddress = 0x84546E60;
+uint vmiaddress = 0x816FB16C;
+
 void menu_viewmem(SceCtrlData pad, SceCtrlData oldpad)
 {
 int ioptions = 2;
@@ -452,35 +510,47 @@ int ioptions = 2;
 		redraw = 0;
 		int x,y;
 		int height = 0;
-		int xoffset = 25;
+		int xoffset = 30;
 		int cellwidth = 45;
 		int adroffset =0;
 		char memoutput[2];
-		for(y = 0 ; y < 16;y++)
+		
+		for(y = 0 ; y < 15;y++)
 		{
 			
 			height = curline(); 
 			
+			if(y==0){
+				
+				for(x=0;x<16;x++){
+				int header = vmiaddress+x;
+				int value = 0;
+				memcpy(&value,&header,1);
+				hexinttostringnoleading(value,gettypesize(t_byte)*2,memoutput);// 2bytes has 4 places in hex
+				blit_stringf(190+(x*cellwidth)+xoffset,height,"%s", memoutput);
+			
+				}
+				line(curline());
+			height = curline();
+			}
 			
 			blit_stringf(5,height,"%s","|");
 			blit_stringf(170+xoffset,height,"%s","/");
 			blit_stringf(960-20,height,"%s","|");
 			
 			
-			adroffset += (0x1<<1*4);
 			int lineaddr = vmiaddress+ adroffset;
-			
-			
+			adroffset += (0x1<<1*4);
 			char slineaddr[11];
 			hexinttostring(lineaddr,gettypesize(t_int)*2,slineaddr);
-			blit_stringf(5+xoffset,height,"%s", slineaddr);
+			blit_stringf(xoffset,height,"%s", slineaddr);
 			
 			for(x=0;x<16;x++){
 				uint* addressvalue = (uint*)(vmiaddress+(y*16)+x);
 				int value = 0;
 				memcpy(&value,addressvalue,1);
 				hexinttostringnoleading(value,gettypesize(t_byte)*2,memoutput);// 2bytes has 4 places in hex
-				blit_stringf(195+(x*cellwidth)+xoffset,height,"%s", memoutput);
+				blit_stringf(190+(x*cellwidth)+xoffset,height,"%s", memoutput);
 			}
 			
 		}

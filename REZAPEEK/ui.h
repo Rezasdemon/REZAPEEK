@@ -10,6 +10,10 @@ enum CMenu {
 struct menuoptions {
 	char* left ;
 	char* right;
+	int useline;
+	int x;
+	int y;
+	
 }; // sent to blit so left is formated string with right being the replace of %s in left
 
 

@@ -278,18 +278,26 @@ void controls_hexleftright(uint* i,int size , SceCtrlData pad, SceCtrlData oldpa
 	}	
 	if((pad.buttons & SCE_CTRL_SQUARE) && (!(oldpad.buttons & SCE_CTRL_SQUARE))){
 		hxincrement = 0x1 << hxplace * 4 ;
-		
-		if((uint)(*i & (0xf << hxplace * 4))>>hxplace*4> 0x00) {
+		uint curval = (uint)(*i & (0xf << hxplace * 4))>>hxplace*4;
+		if(curval> 0x00) {
 			*i -= hxincrement;
+		}
+		if(curval == 0x00){
+			hxincrement = 0xF << hxplace * 4 ;
+			*i+= hxincrement;
 		}
 		pressed = 1;
 	}
 	if((pad.buttons & SCE_CTRL_TRIANGLE) && (!(oldpad.buttons & SCE_CTRL_TRIANGLE))){
 		
 		hxincrement = 0x1 << hxplace * 4 ;
-		
-		if((uint)(*i & (0xf << hxplace * 4))>>hxplace*4< 0x0f) {
+		uint curval = (uint)(*i & (0xf << hxplace * 4))>>hxplace*4;
+		if(curval< 0x0F) {
 			*i += hxincrement;
+		}
+		if(curval == 0x0F)
+		{	hxincrement = 0xF << hxplace * 4 ;
+		*i -= hxincrement;
 		}
 		pressed = 1;			
 	}
@@ -307,8 +315,9 @@ void populatemenu(struct menuoptions menuopt[], int ioptions)
 			
 			blit_set_color(clr_highlight);
 		}
-		
-		blit_stringf(5, curline(), menuopt[i].left, menuopt[i].right);
+		int x =menuopt[i].useline == 1 ? menuopt[i].x: 5;
+		int y =menuopt[i].useline == 1 ? menuopt[i].y: curline();
+		blit_stringf(x, y, menuopt[i].left, menuopt[i].right);
 		
 		if(i == imenu_opt)
 		{
@@ -333,6 +342,7 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	char straddress[11];
 	hexinttostring(iaddress,gettypesize(t_int)*2,straddress);
 	menuopt[0].right = straddress;
+	menuopt[0].useline = 0;
 	if (imenu_opt == 0){
 		controls_hexleftright(&iaddress,gettypesize(t_int), pad ,oldpad);
 	}
@@ -342,6 +352,7 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	char strsetto[11];
 	hexinttostring(sval,gettypesize(t_short)*2,strsetto);// 2bytes has 4 places in hex
 	menuopt[1].right = strsetto;
+	menuopt[1].useline = 0;
 	if (imenu_opt == 1){
 		controls_hexleftright(&sval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
 		sval = swap_uint16(sval);
@@ -371,11 +382,13 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 	
 	menuopt[0].left = "TODO: %s menu";
 	menuopt[0].right= getMenuName(imenu);
+	menuopt[0].useline = 0;
 	
 	menuopt[1].left = "Hex Test2 : %s";
 	char strhextest2[11];
 	hexinttostring(hextest2,gettypesize(t_int)*2,strhextest2);
 	menuopt[1].right = strhextest2;
+	menuopt[1].useline = 0;
 	if (imenu_opt == 1){
 		controls_hexleftright(&hextest2,gettypesize(t_int), pad ,oldpad);	
 	}
@@ -396,11 +409,18 @@ int ioptions = 2;
 	
 	struct menuoptions menuopt[ioptions];
 	
+	int controlheight = curline();
+	
     //SET ADDRESS 
 	menuopt[0].left = "ADDRESS: %s";
 	char straddress[11];
 	hexinttostring(vmiaddress,gettypesize(t_int)*2,straddress);
 	menuopt[0].right = straddress;
+	menuopt[0].useline = 1;
+	menuopt[0].x=5;
+	menuopt[0].y=controlheight;
+	
+	
 	if (imenu_opt == 0){
 		controls_hexleftright(&vmiaddress,gettypesize(t_int), pad ,oldpad);
 	}
@@ -410,6 +430,10 @@ int ioptions = 2;
 	char strsetto[11];
 	hexinttostring(vmsval,gettypesize(t_short)*2,strsetto);// 2bytes has 4 places in hex
 	menuopt[1].right = strsetto;
+	menuopt[1].useline = 1;
+	menuopt[1].x=325;
+	menuopt[1].y=controlheight;
+	
 	if (imenu_opt == 1){
 		controls_hexleftright(&vmsval,gettypesize(t_short), pad ,oldpad);	 // pass size of 2 bytes 
 		vmsval = swap_uint16(vmsval);
@@ -418,48 +442,54 @@ int ioptions = 2;
 		control_tip("X=Inject");
 	}
 	
-	
-	
-	
-	
 	updownmenuopt(pad ,oldpad,ioptions);
 	
 	populatemenu(menuopt, ioptions);
 	
-	
-	
 	if(redraw == 1){
+	line(curline());
+	
 		redraw = 0;
 		int x,y;
 		int height = 0;
-		
+		int xoffset = 25;
+		int cellwidth = 45;
+		int adroffset =0;
 		char memoutput[2];
 		for(y = 0 ; y < 16;y++)
 		{
+			
 			height = curline(); 
-			int lineaddr = vmiaddress + ( 0x1 << 2 * 4);
+			
+			
+			blit_stringf(5,height,"%s","|");
+			blit_stringf(170+xoffset,height,"%s","/");
+			blit_stringf(960-20,height,"%s","|");
+			
+			
+			adroffset += (0x1<<1*4);
+			int lineaddr = vmiaddress+ adroffset;
+			
+			
 			char slineaddr[11];
 			hexinttostring(lineaddr,gettypesize(t_int)*2,slineaddr);
-			blit_stringf(5,height,"%s", slineaddr);
+			blit_stringf(5+xoffset,height,"%s", slineaddr);
+			
 			for(x=0;x<16;x++){
 				uint* addressvalue = (uint*)(vmiaddress+(y*16)+x);
 				int value = 0;
 				memcpy(&value,addressvalue,1);
 				hexinttostringnoleading(value,gettypesize(t_byte)*2,memoutput);// 2bytes has 4 places in hex
-				blit_stringf(175+(x*50),height,"%s", memoutput);
-			
+				blit_stringf(195+(x*cellwidth)+xoffset,height,"%s", memoutput);
 			}
 			
 		}
-		
+	line(curline());	
 	}
 	
 	if(pressed ==1 ){
 		redraw = 1;
 	}
-	
-	
-	
 	
 }
 
@@ -473,12 +503,15 @@ void menu_database(SceCtrlData pad, SceCtrlData oldpad)
 	
 	menuopt[0].left = "TODO: %s menu";
 	menuopt[0].right= getMenuName(imenu);
+	menuopt[0].useline = 0;
 	
 	menuopt[1].left = "some generic text to test option selection";
 	menuopt[1].right="";
+	menuopt[1].useline = 0;
 	
 	menuopt[2].left = "more generic text";
 	menuopt[2].right= "";
+	menuopt[2].useline = 0;
 	
 	
 	updownmenuopt(pad ,oldpad,ioptions);

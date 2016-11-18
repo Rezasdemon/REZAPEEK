@@ -77,7 +77,6 @@ int main_thread(SceSize args, void *argp) {
 					imenu_opt = 0;
 					updatemenusbuf(imenu);
 					blit_clearscreen();
-				
 				}
 			}
 			if ((pad.buttons & SCE_CTRL_RTRIGGER) && (!(oldpad.buttons & SCE_CTRL_RTRIGGER))){

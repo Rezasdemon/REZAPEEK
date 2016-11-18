@@ -5,10 +5,12 @@
 # henkaku.skprx is hard-coded to load and is not listed here
 *main
 # main is a special titleid for SceShell
-ux0:tai/REZAPEEK.suprx
 ux0:app/MLCL00001/henkaku.suprx
+ux0:tai/REZAPEEK.suprx
 *NPXS10015
 # this is for modifying the version string
 ux0:app/MLCL00001/henkaku.suprx
 *PCSA00017
+ux0:tai/REZAPEEK.suprx
+*PCSA00011
 ux0:tai/REZAPEEK.suprx

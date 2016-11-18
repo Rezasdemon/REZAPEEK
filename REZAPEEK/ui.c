@@ -55,10 +55,6 @@ int clr_normal = 0x00ffffff;
 int hxplace = 0;
 int hxincrement = 1;
 
-
-void injectvalue(uint* offset,char* val,int size );
-
-
 char* getMenuName(int id);
 
 void line();
@@ -85,7 +81,7 @@ void menu_info();
 
 //##################### ENTRY POINTS/MAIN FUNC #####################//
 
-
+//main function for ui starts the menu display.
 void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 	
 	
@@ -103,7 +99,7 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 	}
 	_curline=5;
 	char* MenuName = getMenuName(imenu);
-	blit_stringf(5, 5, "REZAPEEK v.0.2 - Menu -> %s", MenuName);
+	blit_stringf(5, 5, "REZAPEEK v.0.5 -[ %s ]", MenuName);
 	
 	blit_stringf(5, curline(), "%s", menusbuf);
 	line(curline());
@@ -139,12 +135,11 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 }
 
 //##################### FUNCTIONS #####################//
-void injectvalue(uint* offset,char* val,int size )
-{
-	memcpy(offset,val,size);
-}
 
-//enum menuid{main,search,viewmem,database,info};
+//to add a menu 
+//add lines to ui.h enum cmenu
+//add the string to this function for the menuname
+//add a function to the bottom and call it from the switch in function "displayMenu"
 char* getMenuName(int id){
 	enum CMenu eMenu = id;
 	switch(eMenu)
@@ -171,10 +166,12 @@ char* getMenuName(int id){
 	return (char*)"Undefined";
 }
 
+//Underscores the length of the screen used for frame
 void line(int y){
 	blit_stringf(5, y, "____________________________________________________________", "");
 }
 
+//gets current line to print and increments for next call to advance the draw position
 int curline (){
 	_curline +=20;
 	return _curline;
@@ -334,6 +331,7 @@ void controls_selfindmem(uint* count,struct memblock* blocks, SceCtrlData pad, S
 	if ((pad.buttons & SCE_CTRL_SELECT) && (!(oldpad.buttons & SCE_CTRL_SELECT)))
 	{
 			GetMemBlocks(count,blocks);
+			pressed = 1;
 		}
 	
 
@@ -368,11 +366,10 @@ void populatemenu(struct menuoptions menuopt[],int ioptions)
 
 uint sval = 0xffff;
 uint iaddress = 0x816FB16C;
-uint memblocks = 0;
-struct memblock memaddrs[50];
+
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 {
-	int ioptions = 4;
+	int ioptions = 2;
 	
 	struct menuoptions menuopt[ioptions];
 	
@@ -400,24 +397,6 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 		control_tip("X=Inject");
 	}
 	
-	menuopt[2].left = "MEMBLOCKS = %s";
-	char buffer[10];
-	itoa(memblocks,buffer,10);
-	menuopt[2].right = buffer;
-	menuopt[2].useline = 0;
-	if(imenu_opt == 2)
-	{
-		controls_selfindmem(&memblocks,(struct memblock*)(&memaddrs),pad,oldpad);
-	}
-	
-	
-	menuopt[3].left = "MEMBLOCKS loc = %s";
-	menuopt[3].left = "ADDRESS: %s";
-	char lbuffer[11];
-	hexinttostring((int)&memaddrs,gettypesize(t_int)*2,lbuffer);
-	menuopt[3].right = lbuffer;
-	menuopt[3].useline = 0;
-	
 	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
@@ -428,27 +407,61 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	
 }
 
-uint hextest2 = 0x000f0000;
+uint adrstar = 0x81000000;
+uint adrend = 0x8F000000;
+
+uint memblocks = 0;
+uint curblock = 0;
+struct memblock memaddrs[50];
+
 void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 {
-	int ioptions = 2;
+	int ioptions = 4;
 	//char _Buf[2 * 9];
 	
 	struct menuoptions menuopt[ioptions];
 	
-	
-	menuopt[0].left = "TODO: %s menu";
-	menuopt[0].right= getMenuName(imenu);
+	menuopt[0].left = "MEMBLOCKS = %s";
+	char buffer[10];
+	itoa(memblocks,buffer,10);
+	menuopt[0].right = buffer;
 	menuopt[0].useline = 0;
-	
-	menuopt[1].left = "Hex Test2 : %s";
-	char strhextest2[11];
-	hexinttostring(hextest2,gettypesize(t_int)*2,strhextest2);
-	menuopt[1].right = strhextest2;
-	menuopt[1].useline = 0;
-	if (imenu_opt == 1){
-		controls_hexleftright(&hextest2,gettypesize(t_int), pad ,oldpad);	
+	if(imenu_opt == 0)
+	{
+		control_tip("SEL=SCAN BLOCKS");
+		controls_selfindmem(&memblocks,(struct memblock*)(&memaddrs),pad,oldpad);
+		
 	}
+	if(memblocks > 0){
+		adrstar = memaddrs[curblock].addr;
+		adrend = adrstar + memaddrs[curblock].size;
+	}
+	
+	menuopt[1].left = "Current Block: %s";
+	char cbbuffer[10];
+	itoa(curblock,cbbuffer,10);
+	menuopt[1].right = cbbuffer;
+	if(imenu_opt == 1){
+		controls_intleftright(&curblock,0,memblocks,pad,oldpad);
+	}
+	
+	menuopt[2].left = "Start Address : %s";
+	char stradrstar[11];
+	hexinttostring(adrstar,gettypesize(t_int)*2,stradrstar);
+	menuopt[2].right = stradrstar;
+	menuopt[2].useline = 0;
+	if (imenu_opt == 2){
+		controls_hexleftright(&adrstar,gettypesize(t_int), pad ,oldpad);	
+	}
+	menuopt[3].left = "End Address : %s";
+	char stradrend[11];
+	hexinttostring(adrend,gettypesize(t_int)*2,stradrend);
+	menuopt[3].right = stradrend;
+	menuopt[3].useline = 0;
+	if (imenu_opt == 3){
+		controls_hexleftright(&adrend,gettypesize(t_int), pad ,oldpad);	
+	}
+	
 	
 	updownmenuopt(pad ,oldpad,ioptions);
 	
@@ -563,6 +576,7 @@ int ioptions = 2;
 	
 }
 
+//todo Work in progress
 void menu_database(SceCtrlData pad, SceCtrlData oldpad)
 {
 	int ioptions = 3;
@@ -594,9 +608,72 @@ void menu_info(SceCtrlData pad, SceCtrlData oldpad)
 {
 	blit_stringf(5, curline(), "%s", "infoScreen");
 	blit_stringf(5, curline(), "%s", "Written by: Reza");
-	blit_stringf(5, curline(), "%s", "credits to : OneRice07 , Rinnegatamante, Joshua");
+	blit_stringf(5, curline(), "%s", "Help from and Credits to:");
 	
+	blit_stringf(5, curline(), "%s", "Rinnegatamante , OneRice07");
+	
+	blit_stringf(5, curline(), "%s", "Joshua");
+	
+	blit_stringf(5, curline(), "%s", "Members in the Vitasdk freenode");
+	
+	blit_stringf(5, curline(), "%s", "Yifanlu for help with taihen library.");
+	
+	blit_stringf(5, curline(), "%s", "Davee for his help as well with general sdk help");
 }
 
+
+
+void menutest(SceCtrlData pad,SceCtrlData oldpad){
+	int ioptions = 4;
+	//char _Buf[2 * 9];
+	
+	struct menuoptions menuopt[ioptions];
+	
+	menuopt[0].left = "MEMBLOCKS = %s";
+	char buffer[10];
+	itoa(memblocks,buffer,10);
+	menuopt[0].right = buffer;
+	menuopt[0].useline = 0;
+	if(imenu_opt == 0)
+	{
+		control_tip("SEL=SCAN BLOCKS");
+		controls_selfindmem(&memblocks,(struct memblock*)(&memaddrs),pad,oldpad);
+		
+	}
+	if(memblocks > 0){
+		adrstar = memaddrs[curblock].addr;
+		adrend = adrstar + memaddrs[curblock].size;
+	}
+	
+	menuopt[1].left = "Current Block: %s";
+	char cbbuffer[10];
+	itoa(curblock,cbbuffer,10);
+	menuopt[1].right = cbbuffer;
+	if(imenu_opt == 1){
+		controls_intleftright(&curblock,0,memblocks,pad,oldpad);
+	}
+	
+	menuopt[2].left = "Start Address : %s";
+	char stradrstar[11];
+	hexinttostring(adrstar,gettypesize(t_int)*2,stradrstar);
+	menuopt[2].right = stradrstar;
+	menuopt[2].useline = 0;
+	if (imenu_opt == 2){
+		controls_hexleftright(&adrstar,gettypesize(t_int), pad ,oldpad);	
+	}
+	menuopt[3].left = "End Address : %s";
+	char stradrend[11];
+	hexinttostring(adrend,gettypesize(t_int)*2,stradrend);
+	menuopt[3].right = stradrend;
+	menuopt[3].useline = 0;
+	if (imenu_opt == 3){
+		controls_hexleftright(&adrend,gettypesize(t_int), pad ,oldpad);	
+	}
+	
+	
+	updownmenuopt(pad ,oldpad,ioptions);
+	
+	populatemenu(menuopt, ioptions);
+}
 
 

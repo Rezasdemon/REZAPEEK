@@ -7,4 +7,5 @@ struct memblock {
 	uint size;
 };
 int GetMemBlocks(uint* count, struct memblock* blocks);
+void injectvalue(uint* offset,char* val,int size );
 #endif

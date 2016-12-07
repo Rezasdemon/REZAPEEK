@@ -2,7 +2,7 @@
 TARGET  = REZAPEEK
 OBJS    = memory.o blit.o font.o threads.o math.o  ui.o main.o
 
-LIBS    = -ltaihen_stub -lSceAppUtil_stub -lSceAppMgr_stub -lSceCtrl_stub -lSceDisplay_stub -lSceFios2_stub -lScePower_stub -lSceLibc_stub
+LIBS    =  -ltaihen_stub -lSceAppUtil_stub -lSceAppMgr_stub -lSceCtrl_stub -lSceDisplay_stub -lSceFios2_stub -lSceLibKernel_stub -lScePower_stub -lSceLibc_stub -lSceIofilemgrForDriver_stub
 	
 PREFIX  = arm-vita-eabi
 CC      = $(PREFIX)-gcc
@@ -29,5 +29,8 @@ clean:
 
 send: $(TARGET).suprx
 	curl -T $(TARGET).suprx ftp://192.168.43.204:1337/ux0:/plugins/$(TARGET).suprx
+	curl -T $(TARGET).suprx ftp://192.168.43.204:1337/ux0:/tai/$(TARGET).skprx
 	curl -T config.txt ftp://192.168.43.204:1337/ux0:/tai/config.txt
 	@echo "Sent."
+	
+	

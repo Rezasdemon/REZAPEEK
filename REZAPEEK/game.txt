@@ -1,1 +1,2 @@
 ux0:/plugins/REZAPEEK.suprx 1
+ux0:/plugins/GoHANmem.suprx 1

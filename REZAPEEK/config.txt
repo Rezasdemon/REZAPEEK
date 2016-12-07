@@ -2,15 +2,28 @@
 # MODIFY ux0:data/tai/config.txt INSTEAD
 # You must reboot for changes to take place.
 *KERNEL
-# henkaku.skprx is hard-coded to load and is not listed here
+ux0:pspemu/adrenaline/adrenaline.skprx
+#ux0:tai/REZAPEEK.skprx
+*NPUH10091
+vs0:sys/external/libpgf.suprx
+ux0:pspemu/adrenaline/adrenaline.suprx
+
 *main
-# main is a special titleid for SceShell
 ux0:app/MLCL00001/henkaku.suprx
-ux0:tai/REZAPEEK.suprx
 *NPXS10015
-# this is for modifying the version string
 ux0:app/MLCL00001/henkaku.suprx
-*PCSA00017
-ux0:tai/REZAPEEK.suprx
+
+
+#MY STUFF 
 *PCSA00011
-ux0:tai/REZAPEEK.suprx
+ux0:tai/REZAPEEK.skprx
+*PCSA00017
+ux0:tai/REZAPEEK.skprx
+*PCSA000147
+ux0:tai/REZAPEEK.skprx
+*PCSA000008
+ux0:tai/REZAPEEK.skprx
+
+#UNIVERSAL
+*ALL
+#ux0:plugins/REZAPEEK.suprx

@@ -26,16 +26,17 @@
 int started = 0;
 int ram_mode = 0;
 SceCtrlData pad, oldpad;
+int runtype = 0;
 
 
+
+void MakeDIRS(int type);
 
 int main_thread(SceSize args, void *argp) {
 	
 	sceKernelDelayThread(5 * 1000 * 1000);
+	MakeDIRS(runtype);
 	
-	sceIoMkdir("ux0:/data/REZAPEEK", 0777);
-	sceIoMkdir("ux0:/data/REZAPEEK/db", 0777);
-	sceIoMkdir("ux0:/data/REZAPEEK/tmp", 0777);
 	
 	// Attaching game main thread
 	SceKernelThreadInfo status;
@@ -108,23 +109,39 @@ int main_thread(SceSize args, void *argp) {
 		oldpad = pad;
 	}
 	free(menusbuf);
+	
 	return 0;
 }
 
 
+int _patchrun(SceSize args,void *argp){
+	runtype = 1;
+	main_thread(args,argp);
+	return 0;
+}
 int _start(SceSize args,const void *argp) {
-	SceUID thid = sceKernelCreateThread("REZAPEEK", main_thread, 0x40, 0x600000, 0, 0, NULL);
+	
+	SceUID thid = sceKernelCreateThread("REZAPEEK", _patchrun, 0x40, 0x600000, 0, 0, NULL);
 	if (thid >= 0)
 		sceKernelStartThread(thid, 0, NULL);
 	return 0;
 }
 
 // our own plugin entry
-int module_start(SceSize argc, const void *args) {
-	//sceKernelExitProcess(0);
-	_start(argc,args);
+int _taihen(SceSize args,void *argp){
+	runtype = 2;
+	main_thread(args,argp);
 	return 0;
 }
+int module_start(SceSize argc, const void *args) {
+	//sceKernelExitProcess(0);
+	SceUID thid = sceKernelCreateThread("REZAPEEK", _taihen, 0x40, 0x600000, 0, 0, NULL);
+	if (thid >= 0)
+		sceKernelStartThread(thid, 0, NULL);
+	
+	return 0;
+}
+
 int module_stop(SceSize argc, const void *args) {
   return SCE_KERNEL_STOP_SUCCESS;
 }
@@ -137,3 +154,20 @@ int module_stop(SceSize argc, const void *args) {
 void module_exit(void) {
 
 }
+
+void MakeDIRS(int type){
+	switch(type){
+		case 1:
+		sceIoMkdir("ux0:/data/REZAPEEK", 0777);
+		sceIoMkdir("ux0:/data/REZAPEEK/db", 0777);
+		sceIoMkdir("ux0:/data/REZAPEEK/tmp", 0777);
+		break;
+		case 2:
+		sceIoMkdirForDriver("ux0:/data/REZAPEEK", 0777);
+		sceIoMkdirForDriver("ux0:/data/REZAPEEK/db", 0777);
+		sceIoMkdirForDriver("ux0:/data/REZAPEEK/tmp", 0777);
+		break;
+	}
+	
+}
+

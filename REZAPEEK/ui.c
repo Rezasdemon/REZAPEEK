@@ -99,7 +99,7 @@ void displayMenu(int ram_mode,SceCtrlData pad, SceCtrlData oldpad){
 	}
 	_curline=5;
 	char* MenuName = getMenuName(imenu);
-	blit_stringf(5, 5, "REZAPEEK v.0.5 -[ %s ]", MenuName);
+	blit_stringf(5, 5, "REZAPEEK v.0.5 Hi Geo - [ %s ]", MenuName);
 	
 	blit_stringf(5, curline(), "%s", menusbuf);
 	line(curline());
@@ -364,9 +364,10 @@ void populatemenu(struct menuoptions menuopt[],int ioptions)
 
 //##################### MENUS #####################//
 
+//MainMenu Vars / Test Zone
 uint sval = 0xffff;
 uint iaddress = 0x816FB16C;
-
+//Main Menu Display Function
 void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 {
 	int ioptions = 2;
@@ -407,13 +408,13 @@ void menu_main(SceCtrlData pad, SceCtrlData oldpad)
 	
 }
 
+//Seek Menu Vars
 uint adrstar = 0x81000000;
 uint adrend = 0x8F000000;
-
 uint memblocks = 0;
 uint curblock = 0;
 struct memblock memaddrs[50];
-
+//Seek Menu Display Function
 void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 {
 	int ioptions = 4;
@@ -470,10 +471,10 @@ void menu_search(SceCtrlData pad, SceCtrlData oldpad)
 }
 
 
-
+//Peek Mem Vars
 uint vmsval = 0xffff;
-uint vmiaddress = 0x816FB16C;
-
+uint vmiaddress = 0x81000000;
+//Peek Mem Menu Display Function
 void menu_viewmem(SceCtrlData pad, SceCtrlData oldpad)
 {
 int ioptions = 2;
@@ -576,7 +577,9 @@ int ioptions = 2;
 	
 }
 
-//todo Work in progress
+//DB Vars
+
+//TODO WIP : DB Display Function
 void menu_database(SceCtrlData pad, SceCtrlData oldpad)
 {
 	int ioptions = 3;
@@ -604,12 +607,12 @@ void menu_database(SceCtrlData pad, SceCtrlData oldpad)
 	
 }
 
+//Info Menu Display Function
 void menu_info(SceCtrlData pad, SceCtrlData oldpad)
 {
 	blit_stringf(5, curline(), "%s", "infoScreen");
 	blit_stringf(5, curline(), "%s", "Written by: Reza");
 	blit_stringf(5, curline(), "%s", "Help from and Credits to:");
-	
 	blit_stringf(5, curline(), "%s", "Rinnegatamante , OneRice07");
 	
 	blit_stringf(5, curline(), "%s", "Joshua");
@@ -622,7 +625,7 @@ void menu_info(SceCtrlData pad, SceCtrlData oldpad)
 }
 
 
-
+// just unused code for storing some examples of api use;
 void menutest(SceCtrlData pad,SceCtrlData oldpad){
 	int ioptions = 4;
 	//char _Buf[2 * 9];
